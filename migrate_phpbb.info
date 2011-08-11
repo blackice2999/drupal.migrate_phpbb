@@ -1,0 +1,15 @@
+name = "Migrate - PHPBB 3.x to Drupal"
+description = "submodule for migrate module to import phpbb 3.x data into drupal"
+package = "Development"
+core = "7.x"
+
+dependencies[] = "migrate"
+dependencies[] = "comment"
+dependencies[] = "forum"
+dependencies[] = "taxonomy"
+
+files[] = "migrate_phpbb.module"
+files[] = "includes/migrate_phpbb3.inc"
+files[] = "includes/migrate_phpbb3_categories.inc"
+files[] = "includes/migrate_phpbb3_item.inc"
+files[] = "includes/migrate_phpbb3_topic.inc"

@@ -1,0 +1,19 @@
+<?php
+
+DEFINE('PHPBB_TOPIC_STATUS_LOCKED', 1);
+DEFINE('PHPBB_TOPIC_TYPE_STICKY', 1);
+DEFINE('PHPBB_TOPIC_TYPE_PROMOTE', 2);
+ 
+/**
+ * Implementation of hook_migrate_api() ->  migrate.module
+ */
+function migrate_phpbb_migrate_api() {
+  $api = array(
+    'api' => 2,
+  );
+  return $api;
+}
+
+function migrate_phpbb_init() {
+  $for_debugging = 'something goes wrong... try breakpoint';
+}
