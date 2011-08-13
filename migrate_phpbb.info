@@ -10,6 +10,8 @@ dependencies[] = "taxonomy"
 
 files[] = "migrate_phpbb.module"
 files[] = "includes/migrate_phpbb3.inc"
+files[] = "includes/migrate_phpbb3_user.inc"
 files[] = "includes/migrate_phpbb3_categories.inc"
 files[] = "includes/migrate_phpbb3_item.inc"
 files[] = "includes/migrate_phpbb3_topic.inc"
+files[] = "includes/migrate_phpbb3_posts.inc"

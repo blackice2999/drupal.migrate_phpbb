@@ -8,12 +8,6 @@ class MigratePhpbb3TopicMigration extends MigratePhpbb3ItemMigration {
 
     $this->description = t('PHPBB3 Topics');
 
-    /*
-    $this->dependencies = array(
-      $this->generateMachineName('MigratePhpbb3Categories'),
-    );
-    */
-
     $this->map = new MigrateSQLMap($this->machineName,
       array('topic_id' => array(
         'type' => 'int',
@@ -43,8 +37,7 @@ class MigratePhpbb3TopicMigration extends MigratePhpbb3ItemMigration {
                      ));
 
     $query->innerJoin('posts', 'pp', 'pp.post_id = pt.topic_first_post_id');
-    $query->range(0, 100);
-    
+
     $this->source = new MigrateSourceSQL($query, array(), NULL, array('map_joinable' => FALSE));
 
     $this->destination = new MigrateDestinationNode('forum', array('text_format' => 'plain_text'));
@@ -53,7 +46,9 @@ class MigratePhpbb3TopicMigration extends MigratePhpbb3ItemMigration {
     $this->addFieldMapping('title', 'topic_title');
 
     // @TODO: add sourcemapping to user...
-    $this->addFieldMapping('uid', 'topic_poster');
+    $this->addFieldMapping('uid', 'topic_poster')
+      ->sourceMigration('MigratePhpbb3User')
+      ->defaultValue(0);
 
     $this->addFieldMapping('language', NULL)
       ->defaultValue(LANGUAGE_NONE);
@@ -64,17 +59,18 @@ class MigratePhpbb3TopicMigration extends MigratePhpbb3ItemMigration {
       ->defaultValue(TRUE);
 
     $this->addFieldMapping('changed', 'post_edit_time');
-    $this->addFieldMapping('status', NULL)
-      ->defaultValue(TRUE);
 
-    $this->addFieldMapping('promote', NULL)
-      ->defaultValue(FALSE);
+    $this->addFieldMapping('status')
+      ->defaultValue(NODE_PUBLISHED);
+
+    $this->addFieldMapping('promote')
+      ->defaultValue(NODE_NOT_PROMOTED);
 
     $this->addFieldMapping('sticky', 'topic_type')
-      ->defaultValue(FALSE);
+      ->defaultValue(NODE_NOT_STICKY);
 
-    $this->addFieldMapping('comment', NULL)
-      ->defaultValue(PHPBB_TOPIC_STATUS_LOCKED);
+    $this->addFieldMapping('comment')
+      ->defaultValue(COMMENT_NODE_OPEN);
     
     $this->addFieldMapping('taxonomy_forums', 'forum_id')
       ->sourceMigration('MigratePhpbb3Categories')
@@ -86,7 +82,6 @@ class MigratePhpbb3TopicMigration extends MigratePhpbb3ItemMigration {
   }
 
   public function prepareRow($row) {
-    $debug = '';
     // if we dont have a change time use the create time
     // @TODO: on posts we need the time of last post.
     if ($row->post_edit_time == "0" || !(isset($row->post_edit_time))) {
@@ -101,14 +96,12 @@ class MigratePhpbb3TopicMigration extends MigratePhpbb3ItemMigration {
     parent::prepareRow($row);
   }
 
-  public function prepare($entity, stdClass $row){
-    $debug = '';
-
+  public function prepare($node, stdClass $row){
     // if nid is not set we have new content
     // we need to inject a NID because of core bug in
     // forum module. see: http://drupal.org/node/839770
-    if (!isset($entity->nid)) {
-      $entity->nid = NULL;
+    if (!isset($node->nid)) {
+      $node->nid = NULL;
     }
   }
 }
