@@ -18,8 +18,6 @@ abstract class MigratePhpbb3ItemMigration extends MigratePhpbb3Migration
 
   public function prepareRow($row)
   {
-    $debug = '';
-
     // remove phpbb3 extra bbcode from content
     if (isset($row->post_text)) {
       // remove the bbcode_uid from post_text

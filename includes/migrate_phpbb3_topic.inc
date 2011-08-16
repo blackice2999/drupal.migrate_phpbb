@@ -76,7 +76,7 @@ class MigratePhpbb3TopicMigration extends MigratePhpbb3ItemMigration {
       ->sourceMigration('MigratePhpbb3Categories')
       ->arguments(array('source_type' => 'tid'));
 
-    $arguments = array('source_field' => 'excerpt', 'format' => 'plain_text');
+    $arguments = array('source_field' => 'excerpt', 'format' => 'user_inputs');
     $this->addFieldMapping('body', 'post_text')
          ->arguments($arguments);
   }

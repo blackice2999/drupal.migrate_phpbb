@@ -20,6 +20,17 @@ class MigratePhpbb3PostsMigration extends MigratePhpbb3ItemMigration
       MigrateDestinationComment::getKeySchema()
     );
 
+    // subquery: get all first post ids from topics and use as condition in main posts query or we get duplicate
+    // posts...
+    $subquery = Database::getConnection('default', 'phpbb')
+      ->select('topics', 'pts')
+      ->fields('pts', array(
+                      'topic_first_post_id',
+                      ));
+    // exclude topics with no replies...
+    $subquery->condition('topic_replies', 0, '>');
+
+    // get all posts from phpbb3 but exclude first post from topic (see subquery before)
     $query = Database::getConnection('default', 'phpbb')
       ->select('posts', 'pp')
       ->fields('pp', array(
@@ -34,10 +45,10 @@ class MigratePhpbb3PostsMigration extends MigratePhpbb3ItemMigration
                           'post_approved',
                           'post_id',
                      ));
-    $query->condition('topic_id', 'post_id', '<>');
+    $query->condition('post_id', $subquery, 'NOT IN');
 
     $this->source = new MigrateSourceSQL($query, array(), NULL, array('map_joinable' => FALSE));
-    $this->destination = new MigrateDestinationComment('comment_node_forum');
+    $this->destination = new MigrateDestinationComment('comment_node_forum', array('text_format' => 'user_inputs'));
 
     $this->addFieldMapping('nid', 'topic_id')
       ->sourceMigration('MigratePhpbb3Topic');
@@ -63,6 +74,7 @@ class MigratePhpbb3PostsMigration extends MigratePhpbb3ItemMigration
   }
 
   public function prepareRow($row) {
+
     // if we dont have a change time use the create time
     // @TODO: on posts we need the time of last post.
     if ($row->post_edit_time == "0" || !(isset($row->post_edit_time))) {
